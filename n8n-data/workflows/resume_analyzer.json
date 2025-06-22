@@ -1,0 +1,186 @@
+{
+  "name": "My workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "a1b2c3d4-e5f6-4a7b-8c9d-0e1f2a3b4c5d",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        0,
+        0
+      ],
+      "id": "91cba42f-0406-4d79-b86a-401957da20ef",
+      "name": "Webhook",
+      "webhookId": "a1b2c3d4-e5f6-4a7b-8c9d-0e1f2a3b4c5d"
+    },
+    {
+      "parameters": {
+        "operation": "pdf",
+        "binaryPropertyName": "file",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1,
+      "position": [
+        220,
+        0
+      ],
+      "id": "33c7950d-e512-4b0e-87cf-7e62cbabf623",
+      "name": "Extract from File",
+      "alwaysOutputData": true,
+      "retryOnFail": false
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.text }}",
+        "messages": {
+          "messageValues": [
+            {
+              "message": "=You are an expert data extraction system. Your only job is to analyze the following resume text and create a single, valid JSON object with the requested information. Do not provide any conversational text, introductions, or explanations. Only output the raw JSON.  **Resume Text to Analyze:** {{ $('Extract from File').item.json.text }}  **Required JSON Schema:** {   \"full_name\": \"string\",   \"email\": \"string\",   \"phone\": \"string\",   \"skills\": [\"string array\"],   \"experience_years\": \"float\",   \"last_job_title\": \"string\" }  If you cannot find a piece of information, use a null value for that field. For 'experience_years', provide a number representing the total years."
+            }
+          ]
+        },
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.7,
+      "position": [
+        440,
+        0
+      ],
+      "id": "0254611e-94e8-4976-bdb2-ba8fa7297d87",
+      "name": "Basic LLM Chain",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-2.5-flash",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        528,
+        220
+      ],
+      "id": "3a7408d7-2552-43bb-aab4-fb0ed946e487",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "wZOvele5uN88Ek23",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "// The '$json' variable represents the object from the previous node, which we now know is { \"text\": \"...\" }.\nconst json = $json;\n\n// Check if the 'text' property exists. If not, something is wrong with the AI node's output.\nif (!json.text) {\n  throw new Error(\"Input from the Google AI node is missing the 'text' property. Check the previous step's output.\");\n}\n\n// The AI's response is a string that includes markdown code fences (```json ... ```).\n// We need to remove them to get a clean, parsable JSON string.\nconst rawAiResponse = json.text;\nconst cleanedString = rawAiResponse\n  .replace(\"```json\", \"\") // Remove the starting fence\n  .replace(\"```\", \"\")     // Remove the ending fence\n  .trim();                // Remove any leading/trailing whitespace or newlines\n\n// Now, parse the cleaned string into a usable JavaScript object.\ntry {\n  // We will attach the new, structured object to our main object under the key 'parsedData'.\n  json.parsedData = JSON.parse(cleanedString);\n} catch (error) {\n  // If parsing fails, it means the AI's response was not valid JSON.\n  console.error(\"CRITICAL: Failed to parse the following cleaned string as JSON:\", cleanedString);\n  throw new Error(`JSON Parsing Error: ${error.message}. The AI did not return valid JSON.`);\n}\n\n// Return the modified object. The next node will receive this enriched data.\nreturn json;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        780,
+        0
+      ],
+      "id": "8ed61a1f-ce7d-44c4-9d5e-9ecddd9cf24b",
+      "name": "Code"
+    },
+    {
+      "parameters": {
+        "schema": {
+          "__rl": true,
+          "mode": "list",
+          "value": "public"
+        },
+        "table": {
+          "__rl": true,
+          "mode": "list",
+          "value": ""
+        }
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        1000,
+        0
+      ],
+      "id": "a6109c52-f288-45a7-a248-f8c626683368",
+      "name": "Postgres",
+      "credentials": {
+        "postgres": {
+          "id": "kwCZJd2leWAOYZlc",
+          "name": "Postgres account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Extract from File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract from File": {
+      "main": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Basic LLM Chain": {
+      "main": [
+        [
+          {
+            "node": "Code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code": {
+      "main": [
+        [
+          {
+            "node": "Postgres",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "tags": []
+}
