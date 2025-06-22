@@ -27,8 +27,6 @@ The system consists of the following services orchestrated by Docker Compose:
 2.  **Review Environment Variables:**
     This project includes a pre-configured `.env` file for ease of testing. Please review this file to ensure the values are correct for your environment, especially your `GOOGLE_AI_API_KEY`.
 
-3.  **Place the n8n Workflow:**
-    Place your exported n8n workflow file at `n8n-data/workflows/resume_analyzer.json`. Ensure the webhook ID in your `N8N_WEBHOOK_URL` matches the production webhook in this file.
 
 ## Running the Application
 
@@ -50,19 +48,19 @@ Since there is no frontend, you can test the API endpoints using `curl`.
 1.  **Get an Authentication Token:**
     The backend uses a hardcoded user for authentication. Use the following command to get a JWT.
     ```sh
-    TOKEN=$(curl -s -X POST -H "Content-Type: application/x-www-form-urlencoded" -d "username=testuser&password=testpassword" http://localhost:8000/auth/login | sed -E 's/.*"access_token":"([^"]+)".*/\1/') && echo "Token stored in \$TOKEN"
+    curl -s -X POST -H "Content-Type: application/x-www-form-urlencoded" -d "username=testuser&password=testpassword" http://localhost:8000/auth/login
     ```
 
 2.  **Upload a Resume for Analysis:**
-    With the token stored in the `$TOKEN` variable, you can now upload a PDF file to the secure endpoint. Replace `path/to/your/resume.pdf` with the actual path to a PDF file.
+    With the token provided from the above command, you can now upload a PDF file to the secure endpoint. Replace `path/to/your/resume.pdf` with the actual path to a PDF file.
     ```sh
-    curl -X POST -H "Authorization: Bearer $TOKEN" -F "file=@path/to/your/resume.pdf" http://localhost:8000/upload
+    curl -X POST -H "Authorization: Bearer $YOUR_TOKEN" -F "file=@path/to/your/resume.pdf" http://localhost:8000/upload
     ```
     On success, this will return `{"message": "File uploaded and sent to workflow successfully."}`.
 
 3.  **Verify the Result in the Database:**
     - Navigate to the **pgAdmin UI** at `http://localhost:5050`.
-    - Log in with the credentials from your `.env` file.
+    - Log in with the credentials from your `.env` file. (username: admin@example.com, password: admin)
     - Connect to the `resume_analyzer_db` and query the `resumes` table to see the newly inserted structured data.
 
 ## Accessing the Services
@@ -72,10 +70,6 @@ Since there is no frontend, you can test the API endpoints using `curl`.
 * **pgAdmin UI:** `http://localhost:5050`
     * **Username:** as defined in `PGADMIN_DEFAULT_EMAIL`
     * **Password:** as defined in `PGADMIN_DEFAULT_PASSWORD`
-
-## Video Demonstration
-
-A 5-minute Loom video demonstrating the full, end-to-end functionality of the application is included as part of the final deliverables.
 
 ## Project Structure
 
