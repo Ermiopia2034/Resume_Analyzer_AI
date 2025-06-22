@@ -33,12 +33,12 @@ The system consists of the following services orchestrated by Docker Compose:
 1.  **Start all services:**
     Run the following command from the project root to build and start the containers in detached mode.
     ```bash
-    docker-compose up --build -d
+    docker compose up --build -d
     ```
 
 2.  **Verify services are running:**
     ```bash
-    docker-compose ps
+    docker compose ps
     ```
 
 ## Usage & Testing
