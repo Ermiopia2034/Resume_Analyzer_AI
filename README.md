@@ -10,6 +10,40 @@ The system consists of the following services orchestrated by Docker Compose:
 * **n8n:** An automation platform that processes the resume, extracts information using Google Gemini, and inserts it into the database.
 * **PostgreSQL:** A database to store the structured resume data.
 * **pgAdmin:** A web-based administration tool for PostgreSQL.
+  
+```mermaid
+  sequenceDiagram
+    participant Browser as User's Browser
+    participant Backend as FastAPI Backend
+    participant N8N as n8n Service
+    participant Postgres as PostgreSQL DB
+    participant Gemini as Google Gemini API
+
+    Note over Browser, Gemini: 1. Authentication
+    
+    Browser->>+Backend: POST /auth/login<br/>(username, password)
+    Note right of Backend: - Verifies credentials against hardcoded user.<br/>- Creates a JWT access token.
+    Backend-->>-Browser: 200 OK<br/>{ "access_token": "...", "token_type": "bearer" }
+
+    Note over Browser, Gemini: 2. Resume Upload and Processing
+    
+    Browser->>+Backend: POST /upload<br/>Header: Authorization: Bearer {token}<br/>Body: Multipart form with PDF file
+    Note right of Backend: - Verifies the JWT is valid.<br/>- Receives the uploaded file.
+    Backend->>+N8N: POST /webhook/a1b2c3d4...<br/>(Forwards PDF in a multipart form field named "file")
+    Backend-->>-Browser: 200 OK<br/>{ "message": "File successfully uploaded..." }
+
+    rect rgb(240, 248, 255)
+        Note over N8N: n8n Workflow Execution
+        N8N->>N8N: 1. Extract Text from File<br/>(Reads binary data from the "file" property)
+        N8N->>+Gemini: 2. Call LLM<br/>(Sends extracted text with a prompt for JSON)
+        Gemini-->>-N8N: 3. Return Structured Data<br/>(Response is a string containing a JSON object)
+        N8N->>N8N: 4. Parse JSON<br/>(Code node cleans and parses the string from the LLM)
+        N8N->>+Postgres: 5. INSERT INTO resumes (...)<br/>(Connects using "postgres" as hostname)
+        Postgres-->>-N8N: 6. Confirm Write
+    end
+    
+    N8N-->>-Backend: (No direct response - "Fire and Forget")
+```
 
 ## Prerequisites
 
