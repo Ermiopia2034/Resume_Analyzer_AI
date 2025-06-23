@@ -82,13 +82,15 @@ Since there is no frontend, you can test the API endpoints using `curl`.
 1.  **Get an Authentication Token:**
     The backend uses a hardcoded user for authentication. Use the following command to get a JWT.
     ```sh
-    curl -s -X POST -H "Content-Type: application/x-www-form-urlencoded" -d "username=testuser&password=testpassword" http://localhost:8000/auth/login
+    curl -X POST "http://localhost:8000/auth/login" -H "Content-Type: application/x-www-form-urlencoded" -d "username=testuser&password=testpassword"
+
     ```
 
 2.  **Upload a Resume for Analysis:**
-    With the token provided from the above command, you can now upload a PDF file to the secure endpoint. Replace `path/to/your/resume.pdf` with the actual path to a PDF file.
+    With the token provided from the above command, you can now upload a PDF file to the secure endpoint. Replace `cv.pdf` with the actual resume PDF file and also make sure you are running this command from the directory where 'cv.pdf' is located.
     ```sh
-    curl -X POST -H "Authorization: Bearer $YOUR_TOKEN" -F "file=@path/to/your/resume.pdf" http://localhost:8000/upload
+    curl -X POST "http://localhost:8000/upload" -H "Authorization: Bearer YOURTOKENHERE" -F "file=@cv.pdf"
+
     ```
     On success, this will return `{"message": "File uploaded and sent to workflow successfully."}`.
 

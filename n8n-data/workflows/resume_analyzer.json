@@ -210,7 +210,7 @@
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.6,
       "position": [
-        1000,
+        960,
         0
       ],
       "id": "9da00bcf-39ed-4277-aa7b-55a122891e01",
@@ -244,7 +244,7 @@
           "value": {
             "Email": "={{ $json.email }}",
             "Phone": "={{ $json.phone }}",
-            "Skills": "={{ $json.skills }}",
+            "Skills": "={{ $json.skills.join() }}",
             "ExperienceYears": "={{ $json.experience_years }}",
             "LastJobTitle": "={{ $json.last_job_title }}",
             "UploadedAt": "={{ $json.uploaded_at }}",
@@ -338,8 +338,8 @@
       "type": "n8n-nodes-base.googleSheets",
       "typeVersion": 4.6,
       "position": [
-        1220,
-        0
+        1200,
+        -100
       ],
       "id": "7ec09272-4310-489e-b9bd-49d40e622d54",
       "name": "Google Sheets",
@@ -347,6 +347,146 @@
         "googleSheetsOAuth2Api": {
           "id": "ScdhhVJonEG9Buu7",
           "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "create",
+        "base": {
+          "__rl": true,
+          "value": "appkPJ6hDX0u63Cii",
+          "mode": "list",
+          "cachedResultName": "ResumeAnalyzer",
+          "cachedResultUrl": "https://airtable.com/appkPJ6hDX0u63Cii"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblXbqMhCJVVGw8jL",
+          "mode": "list",
+          "cachedResultName": "ResumeAnalyzer",
+          "cachedResultUrl": "https://airtable.com/appkPJ6hDX0u63Cii/tblXbqMhCJVVGw8jL"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "ID": "={{ $json.id }}",
+            "Full Name": "={{ $json.full_name }}",
+            "Email": "={{ $json.email }}",
+            "Phone": "={{ $json.phone }}",
+            "Skills": "={{ $json.skills.join() }}",
+            "Experience Years": "={{ $json.experience_years }}",
+            "Last Job Title": "={{ $json.last_job_title }}",
+            "UploadedAt": "={{ $json.uploaded_at }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "ID",
+              "displayName": "ID",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "number",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Full Name",
+              "displayName": "Full Name",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Phone",
+              "displayName": "Phone",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Skills",
+              "displayName": "Skills",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Experience Years",
+              "displayName": "Experience Years",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "number",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Last Job Title",
+              "displayName": "Last Job Title",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "UploadedAt",
+              "displayName": "UploadedAt",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "dateTime",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [
+        1200,
+        100
+      ],
+      "id": "2433ea7b-ba74-401a-8088-a7a59b70297f",
+      "name": "Airtable",
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "l9nkBf44wLWk4Vo6",
+          "name": "Airtable Personal Access Token account"
         }
       }
     }
@@ -415,8 +555,18 @@
             "node": "Google Sheets",
             "type": "main",
             "index": 0
+          },
+          {
+            "node": "Airtable",
+            "type": "main",
+            "index": 0
           }
         ]
+      ]
+    },
+    "Google Sheets": {
+      "main": [
+        []
       ]
     }
   },
@@ -424,7 +574,7 @@
   "settings": {
     "executionOrder": "v1"
   },
-  "versionId": "cf0aec38-5b38-4001-b899-7ed4ba32d359",
+  "versionId": "2e4162e3-2d64-4ead-b0b3-3dc077410020",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "a5ea9521b8a2f6de0b7cf4df4d050a5a0118aaa33f257e44f91f9a6c60187e11"
