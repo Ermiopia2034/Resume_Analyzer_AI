@@ -1,5 +1,5 @@
 {
-  "name": "My workflow",
+  "name": "ResumeAnalyzer",
   "nodes": [
     {
       "parameters": {
@@ -13,25 +13,25 @@
         0,
         0
       ],
-      "id": "91cba42f-0406-4d79-b86a-401957da20ef",
+      "id": "06d53210-950f-4546-9f00-6085cb8d611d",
       "name": "Webhook",
       "webhookId": "a1b2c3d4-e5f6-4a7b-8c9d-0e1f2a3b4c5d"
     },
     {
       "parameters": {
         "operation": "pdf",
-        "binaryPropertyName": "file",
+        "binaryPropertyName": "=file",
         "options": {}
       },
       "type": "n8n-nodes-base.extractFromFile",
       "typeVersion": 1,
       "position": [
         220,
-        0
+        -20
       ],
-      "id": "33c7950d-e512-4b0e-87cf-7e62cbabf623",
+      "id": "aad4f723-0f21-4a21-96f8-f96ce2c060c5",
       "name": "Extract from File",
-      "alwaysOutputData": true,
+      "alwaysOutputData": false,
       "retryOnFail": false
     },
     {
@@ -41,7 +41,7 @@
         "messages": {
           "messageValues": [
             {
-              "message": "=You are an expert data extraction system. Your only job is to analyze the following resume text and create a single, valid JSON object with the requested information. Do not provide any conversational text, introductions, or explanations. Only output the raw JSON.  **Resume Text to Analyze:** {{ $('Extract from File').item.json.text }}  **Required JSON Schema:** {   \"full_name\": \"string\",   \"email\": \"string\",   \"phone\": \"string\",   \"skills\": [\"string array\"],   \"experience_years\": \"float\",   \"last_job_title\": \"string\" }  If you cannot find a piece of information, use a null value for that field. For 'experience_years', provide a number representing the total years."
+              "message": "=You are an expert data extraction system. Your only job is to analyze the following resume text and create a single, valid JSON object with the requested information. Do not provide any conversational text, introductions, or explanations. Only output the raw JSON.\n\nFilename to Analyze: {{ $('Extract from File').item.json.filename }}\n\nResume Text to Analyze: {{ $('Extract from File').item.json.text }}\n\nRequired JSON Schema:\n\n```JSON\n\n\n\n{\n\n  \"full_name\": \"string\",\n\n  \"email\": \"string\",\n\n  \"phone\": \"string\",\n\n  \"skills\": [\"string array\"],\n\n  \"experience_years\": \"float\",\n\n  \"last_job_title\": \"string\"\n\n}\n\n```\n\nIf you cannot find a piece of information from the resume text, use a null value for that field. For 'experience_years', provide a number representing the total years."
             }
           ]
         },
@@ -53,7 +53,7 @@
         440,
         0
       ],
-      "id": "0254611e-94e8-4976-bdb2-ba8fa7297d87",
+      "id": "1f8f4cff-f71e-4527-be99-7c48433e874e",
       "name": "Basic LLM Chain",
       "alwaysOutputData": true
     },
@@ -65,14 +65,14 @@
       "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
       "typeVersion": 1,
       "position": [
-        528,
+        540,
         220
       ],
-      "id": "3a7408d7-2552-43bb-aab4-fb0ed946e487",
+      "id": "151cc2e5-31d8-463c-888f-3e4605689804",
       "name": "Google Gemini Chat Model",
       "credentials": {
         "googlePalmApi": {
-          "id": "wZOvele5uN88Ek23",
+          "id": "psa7rcvuB0mHYHY2",
           "name": "Google Gemini(PaLM) Api account"
         }
       }
@@ -88,7 +88,7 @@
         780,
         0
       ],
-      "id": "8ed61a1f-ce7d-44c4-9d5e-9ecddd9cf24b",
+      "id": "ea7bc13d-9696-460a-a891-eb40b4fd62cf",
       "name": "Code"
     },
     {
@@ -100,9 +100,112 @@
         },
         "table": {
           "__rl": true,
+          "value": "resumes",
           "mode": "list",
-          "value": ""
-        }
+          "cachedResultName": "resumes"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "filename": "={{ $json.parsedData.filename }}",
+            "full_name": "={{ $json.parsedData.full_name }}",
+            "email": "={{ $json.parsedData.email }}",
+            "phone": "={{ $json.parsedData.phone }}",
+            "skills": "={{ $json.parsedData.skills }}",
+            "experience_years": "={{ $json.parsedData.experience_years }}",
+            "last_job_title": "={{ $json.parsedData.last_job_title }}"
+          },
+          "matchingColumns": [
+            "id"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "filename",
+              "displayName": "filename",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "full_name",
+              "displayName": "full_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "email",
+              "displayName": "email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "phone",
+              "displayName": "phone",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "skills",
+              "displayName": "skills",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "array",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "experience_years",
+              "displayName": "experience_years",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "last_job_title",
+              "displayName": "last_job_title",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "uploaded_at",
+              "displayName": "uploaded_at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "dateTime",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
       },
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.6,
@@ -110,12 +213,140 @@
         1000,
         0
       ],
-      "id": "a6109c52-f288-45a7-a248-f8c626683368",
+      "id": "9da00bcf-39ed-4277-aa7b-55a122891e01",
       "name": "Postgres",
       "credentials": {
         "postgres": {
-          "id": "kwCZJd2leWAOYZlc",
+          "id": "K9Z5Luur0xyJ15NJ",
           "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "11aIp5iEz0D99yHzHLeVzg24Wy30BTYIMNgoixKSvJoo",
+          "mode": "list",
+          "cachedResultName": "ResumeAnalyzer",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/11aIp5iEz0D99yHzHLeVzg24Wy30BTYIMNgoixKSvJoo/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 396215451,
+          "mode": "list",
+          "cachedResultName": "Sheet2",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/11aIp5iEz0D99yHzHLeVzg24Wy30BTYIMNgoixKSvJoo/edit#gid=396215451"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Email": "={{ $json.email }}",
+            "Phone": "={{ $json.phone }}",
+            "Skills": "={{ $json.skills }}",
+            "ExperienceYears": "={{ $json.experience_years }}",
+            "LastJobTitle": "={{ $json.last_job_title }}",
+            "UploadedAt": "={{ $json.uploaded_at }}",
+            "id": "={{ $json.id }}",
+            "FullName": "={{ $json.full_name }}"
+          },
+          "matchingColumns": [
+            "id"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "FullName",
+              "displayName": "FullName",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Phone",
+              "displayName": "Phone",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Skills",
+              "displayName": "Skills",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "ExperienceYears",
+              "displayName": "ExperienceYears",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "LastJobTitle",
+              "displayName": "LastJobTitle",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "UploadedAt",
+              "displayName": "UploadedAt",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.6,
+      "position": [
+        1220,
+        0
+      ],
+      "id": "7ec09272-4310-489e-b9bd-49d40e622d54",
+      "name": "Google Sheets",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "ScdhhVJonEG9Buu7",
+          "name": "Google Sheets account"
         }
       }
     }
@@ -176,11 +407,28 @@
           }
         ]
       ]
+    },
+    "Postgres": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     }
   },
   "active": true,
   "settings": {
     "executionOrder": "v1"
   },
+  "versionId": "cf0aec38-5b38-4001-b899-7ed4ba32d359",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "a5ea9521b8a2f6de0b7cf4df4d050a5a0118aaa33f257e44f91f9a6c60187e11"
+  },
+  "id": "ff7MV6PYM2ECLlXf",
   "tags": []
 }
